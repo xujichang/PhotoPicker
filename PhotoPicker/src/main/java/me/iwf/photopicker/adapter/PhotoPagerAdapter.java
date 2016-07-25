@@ -15,9 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import me.iwf.photopicker.R;
 
-/**
- * Created by donglua on 15/6/21.
- */
+
 public class PhotoPagerAdapter extends PagerAdapter {
 
   private List<String> paths = new ArrayList<>();
@@ -60,9 +58,7 @@ public class PhotoPagerAdapter extends PagerAdapter {
         }
       }
     });
-
     container.addView(itemView);
-
     return itemView;
   }
 

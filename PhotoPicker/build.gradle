@@ -3,8 +3,6 @@ apply plugin: 'com.android.library'
 android {
   compileSdkVersion 23
   buildToolsVersion "23.0.3"
-  resourcePrefix "__picker_"
-
   defaultConfig {
     minSdkVersion 10
     targetSdkVersion 23
@@ -12,8 +10,6 @@ android {
     versionName "0.8.5"
   }
 }
-apply from: '../gradle/gradle-mvn-push.gradle'
-
 dependencies {
   compile 'com.android.support:support-v4:23.4.0'
   compile 'com.android.support:appcompat-v7:23.4.0'
