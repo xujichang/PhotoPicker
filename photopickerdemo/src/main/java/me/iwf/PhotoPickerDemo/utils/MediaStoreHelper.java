@@ -3,19 +3,23 @@ package me.iwf.PhotoPickerDemo.utils;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.util.Log;
+import android.widget.ImageView;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
-import me.iwf.PhotoPickerDemo.R;
-import me.iwf.PhotoPickerDemo.entity.PhotoDirectory;
-import me.iwf.PhotoPickerDemo.entity.VideoDirectory;
 import me.iwf.PhotoPickerDemo.PhotoPicker;
+import me.iwf.PhotoPickerDemo.R;
+import me.iwf.PhotoPickerDemo.entity.Photo;
+import me.iwf.PhotoPickerDemo.entity.PhotoDirectory;
+import me.iwf.PhotoPickerDemo.entity.Video;
+import me.iwf.PhotoPickerDemo.entity.VideoDirectory;
 
 import static android.provider.BaseColumns._ID;
 import static android.provider.MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME;
@@ -38,6 +42,11 @@ public class MediaStoreHelper {
     public static void getVideoDirs(FragmentActivity activity, Bundle args, VideosResultCallback resultCallback) {
         activity.getSupportLoaderManager()
                 .initLoader(0, args, new VideoDirLoaderCallBacks(activity, resultCallback));
+    }
+
+    public static void getVideoThumbnail(FragmentActivity activity, Video video, ImageView imageView, ThumbnailResultCallback resultCallback) {
+        activity.getSupportLoaderManager().initLoader(0, null, new ThumbnailLoaderCallbacks(activity, video, imageView, resultCallback));
+
     }
 
     static class PhotoDirLoaderCallbacks implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -111,12 +120,60 @@ public class MediaStoreHelper {
         void onResultCallback(List<VideoDirectory> directories);
     }
 
+    public interface ThumbnailResultCallback {
+        void onResultCallback(Photo photo, ImageView imageView);
+    }
+
+    private static class ThumbnailLoaderCallbacks implements LoaderManager.LoaderCallbacks<Cursor> {
+        private Video video;
+        private Photo photo;
+        private WeakReference<Context> context;
+        private ImageView imageView;
+        private ThumbnailResultCallback resultCallback;
+
+        public ThumbnailLoaderCallbacks(FragmentActivity activity, Video video, ImageView imageView, ThumbnailResultCallback resultCallback) {
+            this.video = video;
+            this.context = new WeakReference<Context>(activity);
+            this.imageView = imageView;
+            this.resultCallback = resultCallback;
+        }
+
+        @Override
+        public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+
+            return new ThumbnailLoader(context.get(), MediaStore.Video.Thumbnails.MINI_KIND, video.getId());
+        }
+
+        @Override
+        public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+            if (null == data) {
+                return;
+            }
+            while (data.moveToNext()) {
+                int imageId = data.getInt(data.getColumnIndexOrThrow(_ID));
+                String path = data.getString(data.getColumnIndexOrThrow(DATA));
+                photo = new Photo(imageId, path);
+                video.setThumbnail(photo);
+            }
+            if (resultCallback != null) {
+                resultCallback.onResultCallback(photo, imageView);
+            }
+        }
+
+        @Override
+        public void onLoaderReset(Loader<Cursor> loader) {
+
+        }
+    }
+
     private static class VideoDirLoaderCallBacks implements LoaderManager.LoaderCallbacks<Cursor> {
+        private FragmentActivity activity;
         private WeakReference<Context> context;
         private VideosResultCallback resultCallback;
 
-        public VideoDirLoaderCallBacks(Context context, VideosResultCallback resultCallback) {
-            this.context = new WeakReference<>(context);
+        public VideoDirLoaderCallBacks(FragmentActivity activity, VideosResultCallback resultCallback) {
+            this.activity = activity;
+            this.context = new WeakReference<Context>(activity);
             this.resultCallback = resultCallback;
         }
 
@@ -142,20 +199,26 @@ public class MediaStoreHelper {
                 String name = data.getString(data.getColumnIndexOrThrow(BUCKET_DISPLAY_NAME));
                 String path = data.getString(data.getColumnIndexOrThrow(DATA));
                 long dateAdded = data.getLong(data.getColumnIndexOrThrow(DATE_ADDED));
-
+                //根据获取的信息创建文件夹对象
                 VideoDirectory directory = new VideoDirectory();
                 directory.setId(bucketId);
                 directory.setName(name);
-
+                Video video = new Video(videoId, path);
+//                getVideoThumbnail(activity, video);
+                //判断在文件夹集合了；里面是否已经有过此文件夹 已经重写过equals
                 if (!videoDirectories.contains(directory)) {
+                    //如果集合中不存在文件夹的信息，则设置此文件夹的信息
                     directory.setCoverPath(path);
-                    directory.addVideo(videoId, path);
-                    directory.setDateAdded(data.getLong(data.getColumnIndexOrThrow(DATE_ADDED)));
+                    directory.addVideo(video);
+                    directory.setDateAdded(dateAdded);
+                    //添加到文件夹的集合
                     videoDirectories.add(directory);
                 } else {
+                    //如果文件夹已存在，则将此视频添加到指定的文件夹中
                     videoDirectories.get(videoDirectories.indexOf(directory)).addVideo(videoId, path);
                 }
-                videoDirectoryAll.addVideo(videoId, path);
+                //所有视频的文件夹当然也要添加
+                videoDirectoryAll.addVideo(video);
             }
 
             if (videoDirectoryAll.getVideoPath().size() > 0) {

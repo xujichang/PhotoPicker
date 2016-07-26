@@ -56,7 +56,7 @@ public class VideoPickerFragment extends Fragment {
         //初始化视频文件集合
         directories = new ArrayList<>();
         //初始化Adapter
-        videoAdpter = new VideoGridAdapter(directories, videoGlide, getContext());
+        videoAdpter = new VideoGridAdapter(directories, videoGlide, getActivity());
         //初始化 directoryAdapter
         listAdapter = new PopupDirectoryListAdapter(videoGlide, directories);
 

@@ -3,7 +3,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="${relativePackage}.${activityClass}"
     >
 
   <include layout="@layout/__picker_toolbar"/>
@@ -16,7 +15,7 @@
 
     <fragment
         android:id="@+id/photoPagerFragment"
-        android:name="me.iwf.photopicker.fragment.ImagePagerFragment"
+        android:name="me.iwf.PhotoPickerDemo.fragment.ImagePagerFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         />

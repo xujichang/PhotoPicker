@@ -32,18 +32,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-
         <activity
-            android:name="me.iwf.photopicker.PhotoPickerActivity"
-            android:theme="@style/AppTheme" />
-
+            android:name=".PhotoPickerActivity"
+            android:theme="@style/customTheme" />
+        <activity android:name=".PhotoPagerActivity" />
         <activity
-            android:name="me.iwf.photopicker.PhotoPagerActivity"
-            android:theme="@style/AppTheme" />
-        <activity
-            android:name="me.iwf.photopicker.VideoPickerActivity"
-            android:theme="@style/AppTheme" />
+            android:name=".VideoPickerActivity"
+            android:theme="@style/customTheme" />
     </application>
 
 </manifest>

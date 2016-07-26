@@ -17,7 +17,7 @@ public class VideoDirectoryLoader extends CursorLoader {
             Media.DATA,
             Media.BUCKET_ID,
             Media.BUCKET_DISPLAY_NAME,
-            Media.DATE_ADDED,
+            Media.DATE_ADDED
     };
 
     public VideoDirectoryLoader(Context context) {

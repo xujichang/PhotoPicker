@@ -5,6 +5,7 @@ import java.util.List;
 
 
 public class VideoDirectory extends BaseDirectory {
+    //视频文件的集合
     List<Video> videos = new ArrayList<>();
 
     public List<Video> getVideos() {
@@ -24,7 +25,13 @@ public class VideoDirectory extends BaseDirectory {
     }
 
     public void addVideo(int id, String path) {
-        videos.add(new Video(id, path));
+        Video video = new Video(id, path);
+        videos.add(video);
+
+    }
+
+    public void addVideo(Video video) {
+        videos.add(video);
     }
 
     @Override
